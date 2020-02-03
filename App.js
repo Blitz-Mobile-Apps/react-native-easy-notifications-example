@@ -25,20 +25,16 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import Notifications from './src/Notifications'
 class App extends React.Component{
   componentDidMount(){
-    NativeModules.reactNativeEasyNotifications.registerForToken(asd=>{
-      console.log(asd)
+    Notifications.getDeviceId(id=>{
+      console.log(id)
     })
-
-    const eventEmitter = new NativeEventEmitter(NativeModules.reactNativeEasyNotifications);
-    eventEmitter.addListener('onNotificationReceived', (event) => {
-       console.log('onNotificationReceived : ', event) // "someValue"
+    Notifications.onMessageReceived(msg=>{
+      console.log(msg)
     })
-    eventEmitter.addListener('notificationReceived : ', (event) => {
-      console.log(event) // "someValue"
-   })
-   
+    Notifications.getData(c=>{})
   }
   
   render(){

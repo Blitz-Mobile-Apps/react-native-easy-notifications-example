@@ -7,18 +7,29 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class NotificationsService extends FirebaseMessagingService {
-
+    public static RemoteMessage message;
     public static String EXTRA_PAYLOAD = null;
     public static Map notificationData;
     public static String summaryText = "This is summary";
@@ -26,52 +37,70 @@ public class NotificationsService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Map<String, String> map = new HashMap<String, String>();
-        if (remoteMessage.getData().size() > 0) {
-            map = remoteMessage.getData();
-            notificationData = map;
-        }
-
-        if (remoteMessage.getData() != null) {
-            showNotification(map.get("title"), map.get("body"), map.get("extraPayload"));
-            Intent intent = new Intent("notificationReceived");
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-        }
+        message = remoteMessage;
+        showNotification();
+        sendMessage();
     }
 
     public static void clearPayload () {
-        notificationData = null;
+        message = null;
         return ;
     }
+    private void sendMessage() {
+        try {
+            Log.d("service", "Recieved message");
+            Intent intent = new Intent("notificationReceived");
 
+            if(message.getData() != null){
+                intent.putExtra("data",new JSONObject(message.getData()).toString());
+            }
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("Firebase service", e.getMessage());
+        }
+    }
     @SuppressLint("NewApi")
-    public void showNotification(String title, String message, String extraPayload){
-        EXTRA_PAYLOAD = extraPayload;
-
+    public void showNotification(){
+        if(message.getData() != null){
+            EXTRA_PAYLOAD = message.getData().toString();
+        }
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "notify_001");
         Intent ii = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, ii, 0);
-
+//        PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 1001, ii, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText(message);
-        bigText.setBigContentTitle(title);
-        bigText.setSummaryText(summaryText);
+        bigText.bigText(message.getNotification().getBody());
+        bigText.setBigContentTitle(message.getNotification().getTitle());
+        bigText.setSummaryText(message.getNotification().getTitle());
+        String colorString = message.getNotification().getColor();
 
+        mBuilder.setColor(Color.parseColor(colorString));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setSmallIcon(R.mipmap.notifications_icon);
-        mBuilder.setContentTitle(title);
-        mBuilder.setContentText(message);
+        mBuilder.setContentTitle(message.getNotification().getTitle());
+        mBuilder.setContentText(message.getNotification().getBody());
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setStyle(bigText);
+        try {
+            URL url = new URL(message.getNotification().getImageUrl().toString());
+            Log.d("IMAGE_URL",url.toString());
+            Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            mBuilder.setLargeIcon(image);
+        } catch(IOException e) {
+
+        }
+
 
         mNotificationManager =
                 (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
-            String channelId = "Your_channel_id";
+            String channelId = "notify_001";
             NotificationChannel channel = new NotificationChannel(
                     channelId,
                     getPackageManager().getApplicationLabel(getApplicationInfo()),
@@ -79,6 +108,7 @@ public class NotificationsService extends FirebaseMessagingService {
             mNotificationManager.createNotificationChannel(channel);
             mBuilder.setChannelId(channelId);
         }
+        mBuilder.setPriority(10);
 
         mNotificationManager.notify(0, mBuilder.build());
 
