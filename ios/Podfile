@@ -33,21 +33,9 @@ target 'push' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+  pod 'Firebase/Core' 
 
-  target 'pushTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+  pod 'Firebase/Messaging' 
 
   use_native_modules!
-end
-
-target 'push-tvOS' do
-  # Pods for push-tvOS
-
-  target 'push-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
 end

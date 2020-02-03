@@ -34,7 +34,7 @@ class App extends React.Component{
     Notifications.onMessageReceived(msg=>{
       console.log(msg)
     })
-    Notifications.getData(data=>{
+    Notifications.getLastNotificationData(data=>{
       console.log(data)
     },err=>{
       console.log(err)

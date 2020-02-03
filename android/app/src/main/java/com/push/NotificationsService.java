@@ -41,16 +41,9 @@ public class NotificationsService extends FirebaseMessagingService {
         showNotification();
         sendMessage();
     }
-
-    public static void clearPayload () {
-        message = null;
-        return ;
-    }
     private void sendMessage() {
         try {
-            Log.d("service", "Recieved message");
             Intent intent = new Intent("notificationReceived");
-
             if(message.getData() != null){
                 intent.putExtra("data",new JSONObject(message.getData()).toString());
             }
@@ -76,22 +69,25 @@ public class NotificationsService extends FirebaseMessagingService {
         bigText.bigText(message.getNotification().getBody());
         bigText.setBigContentTitle(message.getNotification().getTitle());
         bigText.setSummaryText(message.getNotification().getTitle());
-        String colorString = message.getNotification().getColor();
-
-        mBuilder.setColor(Color.parseColor(colorString));
+        if(message.getNotification().getColor() != null){
+            String colorString = message.getNotification().getColor();
+            mBuilder.setColor(Color.parseColor(colorString));
+        }
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setSmallIcon(R.mipmap.notifications_icon);
         mBuilder.setContentTitle(message.getNotification().getTitle());
         mBuilder.setContentText(message.getNotification().getBody());
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setStyle(bigText);
-        try {
-            URL url = new URL(message.getNotification().getImageUrl().toString());
-            Log.d("IMAGE_URL",url.toString());
-            Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-            mBuilder.setLargeIcon(image);
-        } catch(IOException e) {
+        if(message.getNotification().getImageUrl() != null){
+            try {
+                URL url = new URL(message.getNotification().getImageUrl().toString());
+                Log.d("IMAGE_URL",url.toString());
+                Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                mBuilder.setLargeIcon(image);
+            } catch(IOException e) {
 
+            }
         }
 
 
