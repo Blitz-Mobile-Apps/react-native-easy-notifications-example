@@ -69,9 +69,9 @@ public class NotificationsService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "notify_001");
-        Intent ii = new Intent(getApplicationContext(), MainActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 1001, ii, 0);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent i = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
         bigText.bigText(message.getNotification().getBody());
         bigText.setBigContentTitle(message.getNotification().getTitle());

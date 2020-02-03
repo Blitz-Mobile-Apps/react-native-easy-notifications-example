@@ -4,8 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -15,7 +18,14 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class NotificationsModule extends ReactContextBaseJavaModule {
     public static String deviceId = null;
@@ -46,20 +56,49 @@ public class NotificationsModule extends ReactContextBaseJavaModule {
             e.printStackTrace();
         }
     }
+    public static Map<String, String> bundleToMap(Bundle extras) {
+        Map<String, String> map = new HashMap<String, String>();
 
+        Set<String> ks = extras.keySet();
+        Iterator<String> iterator = ks.iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            map.put(key, extras.getString(key));
+        }/*from   w ww .j  a  v  a 2s .c  o m*/
+        return map;
+    }
     @ReactMethod
     public void getIntent(Callback callback){
-        if(NotificationsService.message != null){
-            String data = "";
-            data = new JSONObject(NotificationsService.message.getData()).toString();
-//          Intent i =  getReactApplicationContext().getCurrentActivity().getIntent();
-            Log.d("INTENT_L",data);
-        }else{
-            Log.d("INTENT_L",NotificationsService.EXTRA_PAYLOAD);
+        Intent intent = getCurrentActivity().getIntent();
+        Bundle extras = intent.getExtras();
+        if(extras != null){
+            Map dataMap;
+            dataMap = bundleToMap(extras);
+
+            if(dataMap != null){
+                JSONObject json = new JSONObject(dataMap);
+
+                String str = json.toString();
+                    callback.invoke(str);
+            }
 
         }
-
     }
+//        if(NotificationsService.message != null){
+
+//            try {
+//                data = new JSONObject(getCurrentActivity().getIntent().getStringExtra("notification")).toString();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//          Intent i =  getReactApplicationContext().getCurrentActivity().getIntent();
+//            Log.d("INTENT_L",data);
+//        }else{
+//            Log.d("INTENT_L",":asdasdasdasdasdasdas");
+
+//        }
+
+
 
     @ReactMethod
     public void registerForToken(Callback onRegister){

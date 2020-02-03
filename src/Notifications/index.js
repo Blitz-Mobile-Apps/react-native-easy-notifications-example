@@ -18,12 +18,22 @@ export default  {
             callback("Id not generated yet")
         }
     },
-    getData:(c)=>{
-        notificationModule.getIntent(c)
+    getData:(callback,errorCallback)=>{
+        notificationModule.getIntent(notification => {
+            try{
+                if(typeof notification === 'string'){
+                    let data = JSON.parse(notification)
+                    callback(data)
+                }else{
+                    throw "Invalid data provided";
+                }
+            }catch(e){
+                errorCallback(e)
+            }
+        })
     },
     onMessageReceived: (callback) => {
         eventEmitter.addListener('notificationReceived', (event) => {
-            console.log(event)
             if(event){
                 try{
                     let data = JSON.parse(event)

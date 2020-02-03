@@ -10,6 +10,7 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
+        android:excludeFromRecents="true"
       android:theme="@style/AppTheme">
       <activity
         android:name=".MainActivity"
@@ -26,8 +27,7 @@
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
         <service
             android:name=".NotificationsService"
-            android:exported="false"
-            >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
