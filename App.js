@@ -29,16 +29,17 @@ import Notifications from './src/Notifications'
 class App extends React.Component{
   componentDidMount(){
     Notifications.getDeviceId(id=>{
-      console.log(id)
+      console.log('id ',id)
+      Notifications.onMessageReceived(msg=>{
+        console.log(msg)
+      })
+      Notifications.getLastNotificationData(data=>{
+        console.log(data)
+      },err=>{
+        console.log(err)
+      })
     })
-    Notifications.onMessageReceived(msg=>{
-      console.log(msg)
-    })
-    Notifications.getLastNotificationData(data=>{
-      console.log(data)
-    },err=>{
-      console.log(err)
-    })
+
   }
   
   render(){

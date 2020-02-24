@@ -7,9 +7,13 @@
 
 #import <React/RCTBridgeDelegate.h>
 #import <UIKit/UIKit.h>
+#import "NotificationHandler.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
-
+@interface AppDelegate  : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
+{
+  NotificationHandler *nHandler;
+  NSDictionary *dic;
+}
 @property (nonatomic, strong) UIWindow *window;
 
 @end
